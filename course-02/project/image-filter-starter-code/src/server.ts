@@ -30,7 +30,13 @@ import {filterImageFromURL, deleteLocalFiles} from './util/util';
   /**************************************************************************** */
 
   //! END @TODO1
-  
+ 
+  // "/filteredimage" 
+  app.get( "/filteredimage", async ( req, res ) => {
+    res.status(200).send("buona la prima.");
+    
+  } );
+
   // Root Endpoint
   // Displays a simple message to the user
   app.get( "/", async ( req, res ) => {
