@@ -34,19 +34,25 @@ import {filterImageFromURL, deleteLocalFiles} from './util/util';
   // "/filteredimage" 
   app.get( "/filteredimage", async ( req, res ) => {
     
-    let image_url:string  = req.query.image_url;
+    //let image_url:string  = req.query.image_url;
+    const image_url = req.query.image_url;
     
     if (!image_url) {
-      
       res.status(400).send("try GET /filteredimage?image_url={{}}")
-   
-    } else {
-
-      res.status(200).send(image_url); 
-     
-    }
-
+    } 
     
+    filterImageFromURL(image_url).then(function(success) { 
+    
+      res.status(200).sendFile(success, () => deleteLocalFiles([success]) );
+
+    }) 
+    .catch(function(error) { 
+    
+      // error handler is called
+      res.status(500).send("Please try again tomorrow");
+
+    });
+
 
   } );
 
