@@ -1,15 +1,15 @@
-import express from 'express';
-import bodyParser from 'body-parser';
-import {filterImageFromURL, deleteLocalFiles} from './util/util';
+import express from "express";
+import bodyParser from "body-parser";
+import { filterImageFromURL, deleteLocalFiles } from "./util/util";
+import validUrl from "valid-url";
 
 (async () => {
-
   // Init the Express application
   const app = express();
 
   // Set the network port
   const port = process.env.PORT || 8082;
-  
+
   // Use the body parser middleware for post requests
   app.use(bodyParser.json());
 
@@ -30,47 +30,47 @@ import {filterImageFromURL, deleteLocalFiles} from './util/util';
   /**************************************************************************** */
 
   //! END @TODO1
- 
-  // "/filteredimage" 
-  app.get( "/filteredimage", async ( req, res ) => {
-    
-    //let image_url:string  = req.query.image_url;
-    const image_url = req.query.image_url;
-    
-    if (!image_url) {
-      res.status(400).send("try GET /filteredimage?image_url={{}}")
-    } 
-    
-    filterImageFromURL(image_url).then(function(success) { 
-    
-      res.status(200).sendFile(success, () => deleteLocalFiles([success]) );
 
-    }) 
-    .catch(function(error) { 
-    
-      // error handler is called
-      res.status(500).send("Please try again tomorrow");
+  // "/filteredimage"
+  app.get(
+    "/filteredimage",
+    async (req: express.Request, res: express.Response) => {
+      //let image_url:string  = req.query.image_url;
+      const image_url = req.query.image_url;
 
-    });
+      if (!validUrl.isUri(image_url)) {
+        return res.status(400).send("Not a valid url.");
+      }
 
+      if (!image_url) {
+        return res.status(400).send("try GET /filteredimage?image_url={{}}");
+      }
 
-  } );
+      filterImageFromURL(image_url)
+        .then(function (success) {
+          res.status(200).sendFile(success, () => deleteLocalFiles([success]));
+        })
+        .catch(function (error) {
+          // error handler is called
+          res.status(500).send("Please try again tomorrow");
+        });
+    }
+  );
 
   // Root Endpoint
   // Displays a simple message to the user
-  app.get( "/", async ( req, res ) => {
+  app.get("/", async (req: express.Request, res: express.Response) => {
     res.status(400).send("try GET /filteredimage?image_url={{}}");
     // res.send("try GET /filteredimage?image_url={{}}")
-  } );
-  
+  });
+
   // app.get( "/", ( req: Request, res: Response ) => {
   //   res.status(200).send("Welcome to the Cloud!");
   // } );
 
-
   // Start the Server
-  app.listen( port, () => {
-      console.log( `server running http://localhost:${ port }` );
-      console.log( `press CTRL+C to stop server` );
-  } );
+  app.listen(port, () => {
+    console.log(`server running http://localhost:${port}`);
+    console.log(`press CTRL+C to stop server`);
+  });
 })();
